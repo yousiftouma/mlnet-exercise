@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using Microsoft.ML;
 using Microsoft.ML.Data;
+using Microsoft.ML.Transforms;
 using Microsoft.ML.Transforms.Image;
+using Microsoft.ML.Transforms.Onnx;
 using OnnxObjectDetection.ML.DataModels;
 
 namespace OnnxObjectDetection.ML
@@ -24,25 +26,45 @@ namespace OnnxObjectDetection.ML
             var dataView = _mlContext.Data.LoadFromEnumerable(new List<ImageInputData>());
 
             var pipeline = new EstimatorChain<ITransformer>()
-                .Append(_mlContext.Transforms.ResizeImages(
-                    resizing: ImageResizingEstimator.ResizingKind.Fill,
-                    outputColumnName: onnxModel.ModelInput,
-                    imageWidth: ImageSettings.imageWidth,
-                    imageHeight: ImageSettings.imageHeight,
-                    inputColumnName: nameof(ImageInputData.Image)))
-                .Append(_mlContext.Transforms.ExtractPixels(
-                        inputColumnName: onnxModel.ModelInput, 
-                        outputColumnName: onnxModel.ModelInput))
-                .Append(_mlContext.Transforms.ApplyOnnxModel(
-                    modelFile: onnxModel.ModelPath, 
-                    outputColumnName: onnxModel.ModelOutput, 
-                    inputColumnName: onnxModel.ModelInput))
-                .Append(_mlContext.Transforms.CopyColumns(inputColumnName: onnxModel.ModelOutput,
-                    outputColumnName: nameof(IOnnxObjectPrediction.PredictedLabels)));
+                .Append(ResizeImage(onnxModel))
+                .Append(ExtractPixels(onnxModel))
+                .Append(ApplyOnnxModel(onnxModel))
+                .Append(CopyColumns(onnxModel));
 
             var mlNetModel = pipeline.Fit(dataView);
 
             return mlNetModel;
+        }
+
+        private ImageResizingEstimator ResizeImage(IOnnxModel onnxModel)
+        {
+            return _mlContext.Transforms.ResizeImages(
+                inputColumnName: nameof(ImageInputData.Image),
+                outputColumnName: onnxModel.ModelInput,
+                resizing: ImageResizingEstimator.ResizingKind.Fill,
+                imageWidth: ImageSettings.imageWidth,
+                imageHeight: ImageSettings.imageHeight);
+        }
+
+        private ImagePixelExtractingEstimator ExtractPixels(IOnnxModel onnxModel)
+        {
+            return _mlContext.Transforms.ExtractPixels(
+                inputColumnName: onnxModel.ModelInput, 
+                outputColumnName: onnxModel.ModelInput);
+        }
+
+        private OnnxScoringEstimator ApplyOnnxModel(IOnnxModel onnxModel)
+        {
+            return _mlContext.Transforms.ApplyOnnxModel(
+                inputColumnName: onnxModel.ModelInput,
+                outputColumnName: onnxModel.ModelOutput,
+                modelFile: onnxModel.ModelPath);
+        }
+
+        private ColumnCopyingEstimator CopyColumns(IOnnxModel onnxModel)
+        {
+            return _mlContext.Transforms.CopyColumns(inputColumnName: onnxModel.ModelOutput,
+                outputColumnName: nameof(IOnnxObjectPrediction.PredictedLabels));
         }
 
         public PredictionEngine<ImageInputData, T> GetMlNetPredictionEngine<T>()
