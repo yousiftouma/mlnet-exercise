@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using OnnxObjectDetection;
+using OnnxObjectDetection.ML;
 using OnnxObjectDetection.ML.DataModels;
+using OnnxObjectDetectionWeb.Utilitites;
 
 namespace OnnxObjectDetectionWeb.Services
 {
@@ -18,16 +20,21 @@ namespace OnnxObjectDetectionWeb.Services
     {
         List<BoundingBox> _filteredBoxes;
         private readonly OnnxOutputParser _outputParser = new OnnxOutputParser(new TinyYoloModel(null));
-        private readonly PredictionEnginePool<ImageInputData, TinyYoloPrediction> _predictionEngine;
 
-        public ObjectDetectionService(PredictionEnginePool<ImageInputData, TinyYoloPrediction> predictionEngine)
+        public ObjectDetectionService()
         {
-            _predictionEngine = predictionEngine;
+            //TODO Get a PredictionEnginePool using DI and store it as a field in the class
         }
 
         public void DetectObjectsUsingModel(ImageInputData imageInputData)
         {
-            var probabilities = _predictionEngine.Predict(imageInputData).PredictedLabels;
+            //TODO use the PredictionEnginePool instead of creating a new predictor
+
+            var transformer = new OnnxModelConfigurator(new TinyYoloModel(CommonHelpers.GetAbsolutePath("ML/OnnxModels/TinyYolo2_model.onnx")));
+            var predictor = transformer.GetMlNetPredictionEngine<TinyYoloPrediction>();
+
+            var probabilities = predictor.Predict(imageInputData).PredictedLabels;
+
             var boundingBoxes = _outputParser.ParseOutputs(probabilities);
             _filteredBoxes = OnnxOutputParser.FilterBoundingBoxes(boundingBoxes, 5, .5F);
         }

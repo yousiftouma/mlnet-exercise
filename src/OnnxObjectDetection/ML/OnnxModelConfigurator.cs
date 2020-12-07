@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.ML.Transforms;
@@ -75,8 +76,8 @@ namespace OnnxObjectDetection.ML
 
         public void SaveMlNetModel(string mlnetModelFilePath)
         {
-            // Save/persist the model to a .ZIP file to be loaded by the PredictionEnginePool
-            _mlContext.Model.Save(_mlModel, null, mlnetModelFilePath);
+            //TODO Save/persist the model to a .ZIP file to be loaded by the PredictionEnginePool
+            throw new NotImplementedException();
         }
     }
 }
