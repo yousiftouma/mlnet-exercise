@@ -18,17 +18,13 @@ namespace OnnxObjectDetection
 
         public float Confidence { get; set; }
 
-        public RectangleF Rect
-        {
-            get { return new RectangleF(Dimensions.X, Dimensions.Y, Dimensions.Width, Dimensions.Height); }
-        }
+        public RectangleF Rect => new RectangleF(Dimensions.X, Dimensions.Y, Dimensions.Width, Dimensions.Height);
 
         public Color BoxColor { get; set; }
 
-        public string Description => $"{Label} ({(Confidence * 100).ToString("0")}%)";
+        public string Description => $"{Label} ({(Confidence * 100):0}%)";
 
-        private static readonly Color[] classColors = new Color[]
-        {
+        private static readonly Color[] ClassColors = {
             Color.Khaki, Color.Fuchsia, Color.Silver, Color.RoyalBlue,
             Color.Green, Color.DarkOrange, Color.Purple, Color.Gold,
             Color.Red, Color.Aquamarine, Color.Lime, Color.AliceBlue,
@@ -37,6 +33,6 @@ namespace OnnxObjectDetection
             Color.DarkTurquoise
         };
 
-        public static Color GetColor(int index) => index < classColors.Length ? classColors[index] : classColors[index % classColors.Length];
+        public static Color GetColor(int index) => index < ClassColors.Length ? ClassColors[index] : ClassColors[index % ClassColors.Length];
     }
 }
