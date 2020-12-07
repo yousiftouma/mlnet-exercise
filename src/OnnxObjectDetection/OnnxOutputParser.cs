@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using OnnxObjectDetection.ML.DataModels;
 
 namespace OnnxObjectDetection
 {

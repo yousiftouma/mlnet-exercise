@@ -3,7 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 
-namespace OnnxObjectDetection
+namespace OnnxObjectDetection.ML.DataModels
 {
     public class CustomVisionModel : IOnnxModel
     {

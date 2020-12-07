@@ -5,10 +5,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.ML;
-using OnnxObjectDetectionWeb.Infrastructure;
 using OnnxObjectDetectionWeb.Services;
-using OnnxObjectDetectionWeb.Utilities;
 using OnnxObjectDetection;
+using OnnxObjectDetection.ML;
+using OnnxObjectDetection.ML.DataModels;
+using OnnxObjectDetectionWeb.ImageFileHelpers;
+using OnnxObjectDetectionWeb.Utilitites;
 
 namespace OnnxObjectDetectionWeb
 {
@@ -26,7 +28,7 @@ namespace OnnxObjectDetectionWeb
 
             var onnxModelConfigurator = new OnnxModelConfigurator(new TinyYoloModel(_onnxModelFilePath));
 
-            onnxModelConfigurator.SaveMLNetModel(_mlnetModelFilePath);
+            onnxModelConfigurator.SaveMlNetModel(_mlnetModelFilePath);
         }
 
         public IConfiguration Configuration { get; }

@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-
-namespace OnnxObjectDetectionWeb.Infrastructure
+namespace OnnxObjectDetectionWeb.ImageFileHelpers
 {
     /// <summary>
     /// Interface to use in DI/IoC

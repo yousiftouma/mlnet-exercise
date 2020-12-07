@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Text;
 
-namespace OnnxObjectDetectionWeb.Infrastructure
+namespace OnnxObjectDetectionWeb.ImageFileHelpers
 {
     public static class ImageValidationExtensions
     {

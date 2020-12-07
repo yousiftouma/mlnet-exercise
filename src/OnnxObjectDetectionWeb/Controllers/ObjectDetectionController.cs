@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OnnxObjectDetectionWeb.Infrastructure;
 using OnnxObjectDetectionWeb.Services;
-using OnnxObjectDetectionWeb.Utilities;
 using OnnxObjectDetection;
+using OnnxObjectDetection.ML.DataModels;
+using OnnxObjectDetectionWeb.ImageFileHelpers;
+using OnnxObjectDetectionWeb.Utilitites;
 
 namespace OnnxObjectDetectionWeb.Controllers
 {

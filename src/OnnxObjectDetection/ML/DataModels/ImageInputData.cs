@@ -1,7 +1,7 @@
-﻿using Microsoft.ML.Transforms.Image;
-using System.Drawing;
+﻿using System.Drawing;
+using Microsoft.ML.Transforms.Image;
 
-namespace OnnxObjectDetection
+namespace OnnxObjectDetection.ML.DataModels
 {
     public struct ImageSettings
     {

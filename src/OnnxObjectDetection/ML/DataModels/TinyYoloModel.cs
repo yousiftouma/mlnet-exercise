@@ -1,4 +1,4 @@
-﻿namespace OnnxObjectDetection
+﻿namespace OnnxObjectDetection.ML.DataModels
 {
     public class TinyYoloModel : IOnnxModel
     {

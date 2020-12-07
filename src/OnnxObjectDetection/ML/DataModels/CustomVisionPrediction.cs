@@ -1,6 +1,6 @@
 ﻿using Microsoft.ML.Data;
 
-namespace OnnxObjectDetection
+namespace OnnxObjectDetection.ML.DataModels
 {
     public class CustomVisionPrediction : IOnnxObjectPrediction
     {

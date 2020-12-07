@@ -1,30 +1,44 @@
-﻿using Microsoft.ML;
+﻿using System.Collections.Generic;
+using Microsoft.ML;
+using Microsoft.ML.Data;
 using Microsoft.ML.Transforms.Image;
-using System.Collections.Generic;
-using System.Linq;
+using OnnxObjectDetection.ML.DataModels;
 
-namespace OnnxObjectDetection
+namespace OnnxObjectDetection.ML
 {
     public class OnnxModelConfigurator
     {
-        private readonly MLContext mlContext;
-        private readonly ITransformer mlModel;
+        private readonly MLContext _mlContext;
+        private readonly ITransformer _mlModel;
 
         public OnnxModelConfigurator(IOnnxModel onnxModel)
         {
-            mlContext = new MLContext();
+            _mlContext = new MLContext();
             // Model creation and pipeline definition for images needs to run just once,
             // so calling it from the constructor:
-            mlModel = SetupMlNetModel(onnxModel);
+            _mlModel = SetupMlNetModel(onnxModel);
         }
 
         private ITransformer SetupMlNetModel(IOnnxModel onnxModel)
         {
-            var dataView = mlContext.Data.LoadFromEnumerable(new List<ImageInputData>());
+            var dataView = _mlContext.Data.LoadFromEnumerable(new List<ImageInputData>());
 
-            var pipeline = mlContext.Transforms.ResizeImages(resizing: ImageResizingEstimator.ResizingKind.Fill, outputColumnName: onnxModel.ModelInput, imageWidth: ImageSettings.imageWidth, imageHeight: ImageSettings.imageHeight, inputColumnName: nameof(ImageInputData.Image))
-                            .Append(mlContext.Transforms.ExtractPixels(inputColumnName: onnxModel.ModelInput, outputColumnName: onnxModel.ModelInput))
-                            .Append(mlContext.Transforms.ApplyOnnxModel(modelFile: onnxModel.ModelPath, outputColumnName: onnxModel.ModelOutput, inputColumnName: onnxModel.ModelInput));
+            var pipeline = new EstimatorChain<ITransformer>()
+                .Append(_mlContext.Transforms.ResizeImages(
+                    resizing: ImageResizingEstimator.ResizingKind.Fill,
+                    outputColumnName: onnxModel.ModelInput,
+                    imageWidth: ImageSettings.imageWidth,
+                    imageHeight: ImageSettings.imageHeight,
+                    inputColumnName: nameof(ImageInputData.Image)))
+                .Append(_mlContext.Transforms.ExtractPixels(
+                        inputColumnName: onnxModel.ModelInput, 
+                        outputColumnName: onnxModel.ModelInput))
+                .Append(_mlContext.Transforms.ApplyOnnxModel(
+                    modelFile: onnxModel.ModelPath, 
+                    outputColumnName: onnxModel.ModelOutput, 
+                    inputColumnName: onnxModel.ModelInput))
+                .Append(_mlContext.Transforms.CopyColumns(inputColumnName: onnxModel.ModelOutput,
+                    outputColumnName: nameof(IOnnxObjectPrediction.PredictedLabels)));
 
             var mlNetModel = pipeline.Fit(dataView);
 
@@ -34,13 +48,13 @@ namespace OnnxObjectDetection
         public PredictionEngine<ImageInputData, T> GetMlNetPredictionEngine<T>()
             where T : class, IOnnxObjectPrediction, new()
         {
-            return mlContext.Model.CreatePredictionEngine<ImageInputData, T>(mlModel);
+            return _mlContext.Model.CreatePredictionEngine<ImageInputData, T>(_mlModel);
         }
 
-        public void SaveMLNetModel(string mlnetModelFilePath)
+        public void SaveMlNetModel(string mlnetModelFilePath)
         {
             // Save/persist the model to a .ZIP file to be loaded by the PredictionEnginePool
-            mlContext.Model.Save(mlModel, null, mlnetModelFilePath);
+            _mlContext.Model.Save(_mlModel, null, mlnetModelFilePath);
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using OnnxObjectDetection;
+using OnnxObjectDetection.ML.DataModels;
 
 namespace OnnxObjectDetectionWeb.Services
 {
