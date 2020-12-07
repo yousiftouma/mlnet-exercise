@@ -5,13 +5,13 @@ namespace OnnxObjectDetection.ML.DataModels
 {
     public struct ImageSettings
     {
-        public const int imageHeight = 416;
-        public const int imageWidth = 416;
+        public const int imageHeight = int.MinValue; //TODO update these
+        public const int imageWidth = int.MinValue;
     }
 
     public class ImageInputData
     {
-        [ImageType(ImageSettings.imageHeight, ImageSettings.imageWidth)]
+        //TODO annotate this
         public Bitmap Image { get; set; }
     }
 }

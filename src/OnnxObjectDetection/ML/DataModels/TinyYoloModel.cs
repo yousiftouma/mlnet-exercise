@@ -4,8 +4,8 @@
     {
         public string ModelPath { get; private set; }
 
-        public string ModelInput { get; } = "image";
-        public string ModelOutput { get; } = "grid";
+        public string ModelInput { get; } = "CHANGE_ME"; //TODO change input and ouput names
+        public string ModelOutput { get; } = "CHANGE_ME";
 
         public string[] Labels { get; } =
         {

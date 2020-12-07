@@ -5,6 +5,7 @@ using Microsoft.ML.Data;
 using Microsoft.ML.Transforms;
 using Microsoft.ML.Transforms.Image;
 using Microsoft.ML.Transforms.Onnx;
+using OnnxObjectDetection.Cheating;
 using OnnxObjectDetection.ML.DataModels;
 
 namespace OnnxObjectDetection.ML
@@ -24,13 +25,12 @@ namespace OnnxObjectDetection.ML
 
         private ITransformer SetupMlNetModel(IOnnxModel onnxModel)
         {
+            // This is required to understand the shape of the input
             var dataView = _mlContext.Data.LoadFromEnumerable(new List<ImageInputData>());
 
-            var pipeline = new EstimatorChain<ITransformer>()
-                .Append(ResizeImage(onnxModel))
-                .Append(ExtractPixels(onnxModel))
-                .Append(ApplyOnnxModel(onnxModel))
-                .Append(CopyColumns(onnxModel));
+            var pipeline = new EstimatorChain<ITransformer>();
+
+            //TODO append the estimators to the pipeline in the correct order
 
             var mlNetModel = pipeline.Fit(dataView);
 
@@ -39,44 +39,44 @@ namespace OnnxObjectDetection.ML
 
         private ImageResizingEstimator ResizeImage(IOnnxModel onnxModel)
         {
-            return _mlContext.Transforms.ResizeImages(
-                inputColumnName: nameof(ImageInputData.Image),
-                outputColumnName: onnxModel.ModelInput,
-                resizing: ImageResizingEstimator.ResizingKind.Fill,
-                imageWidth: ImageSettings.imageWidth,
-                imageHeight: ImageSettings.imageHeight);
+            //TODO Return an estimator that resizes a Bitmap
+            // (note: cheating possible through Cheats.ResizeImage)
+            throw new NotImplementedException();
         }
 
         private ImagePixelExtractingEstimator ExtractPixels(IOnnxModel onnxModel)
         {
-            return _mlContext.Transforms.ExtractPixels(
-                inputColumnName: onnxModel.ModelInput, 
-                outputColumnName: onnxModel.ModelInput);
+            //TODO Return an estimator that extracts pixel values from a Bitmap
+            // (note: cheating possible through Cheats.ExtractPixels)
+            throw new NotImplementedException();
         }
 
         private OnnxScoringEstimator ApplyOnnxModel(IOnnxModel onnxModel)
         {
-            return _mlContext.Transforms.ApplyOnnxModel(
-                inputColumnName: onnxModel.ModelInput,
-                outputColumnName: onnxModel.ModelOutput,
-                modelFile: onnxModel.ModelPath);
+            //TODO Return an estimator that runs a float vector through an Onnx model
+            // (note: cheating possible through Cheats.ApplyOnnxModel)
+            throw new NotImplementedException();
         }
 
         private ColumnCopyingEstimator CopyColumns(IOnnxModel onnxModel)
         {
-            return _mlContext.Transforms.CopyColumns(inputColumnName: onnxModel.ModelOutput,
-                outputColumnName: nameof(IOnnxObjectPrediction.PredictedLabels));
+            //TODO Return an estimator that copies values
+            // (note: cheating possible through Cheats.CopyColumns)
+            throw new NotImplementedException();
         }
 
         public PredictionEngine<ImageInputData, T> GetMlNetPredictionEngine<T>()
             where T : class, IOnnxObjectPrediction, new()
         {
-            return _mlContext.Model.CreatePredictionEngine<ImageInputData, T>(_mlModel);
+            //TODO create and return a prediction engine 
+            // the prediction engine should run objects of type ImageInputData into the pipeline
+            // and store the output in objects of the generic type T (what are the constraints on it?)
+            throw new NotImplementedException();
         }
 
         public void SaveMlNetModel(string mlnetModelFilePath)
         {
-            //TODO Save/persist the model to a .ZIP file to be loaded by the PredictionEnginePool
+            // not needed yet
             throw new NotImplementedException();
         }
     }
