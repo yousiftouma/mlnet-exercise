@@ -41,8 +41,123 @@ Hopefully, you now have an idea of the goal!
 
 ## Part 1
 
-* Checkout the **part1** branch.
+Checkout the **part1** branch.
 
+If you try running the project, you will notice that nothing works right now.
+
+We have a lot of stuff to do to get it up and running, and hopefully, by doing so, we will learn a great deal about ML.NET!
+
+To help out with some tedious parts that are inherited given the actual ONNX model being used in this sample, there are a bunch of helpers under the _OnnxObjectDetection.Cheating_ namespace.
+
+Actually, most TODOs can be solved using these, but the ones where I recommend using it are specifically noted as such.
+
+### Task 1 - Data models
+
+To get all data modelling correct, we need to know how our model works. 
+You can find more information about the model that is used in this project [here](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny-yolov2).
+
+Another great thing to do when working with ONNX models is to inspect the actual model.
+This can be done using for example [this app](https://netron.app).
+Load the ONNX model (OnnxObjectDetection/ML/OnnxModels/TinyYolo2_model.onnx) and inspect it a bit.
+
+The parts that are important to note are what the names are of the inputs and outputs, as well as the form of what is expected as input to the model and the form of the output.
+
+### Task 2 - your first TODOs
+
+Let's use this new information we learned from the model and apply it where we have the first TODOs.
+
+Go to OnnxObjectDetection/ML/DataModels and fix the TODOs in _TinyYoloModel_ and _ImageInputData_.
+
+Use [this](https://docs.microsoft.com/en-us/dotnet/api/microsoft.ml.transforms.image.imagetypeattribute?view=ml-dotnet) to annotate the Bitmap properly.
+
+ML.NET supports Bitmaps for images and needs further information about the shape of the actual image for transforms later on.
+
+### Task 3 - Creating a transformation pipeline model
+
+Okay, so we got the models ready to go, time to define a pipeline that takes an image and does the magic.
+
+Go to OnnxObjectDetection/ML/OnnxModelConfigurator.
+
+From task 1, we got the information with us that the ONNX model expected input on the form 3x416x416 of floats.
+
+(Think about what those numbers represent in relation to an image)
+
+This means we somehow need to make sure the image is of the correct size, as well as transformed to a 3d array of floats before being fed to the actual model.
+
+This is where transforms come in!
+An MLContext object has a Transforms property which contains a bunch of transformers (or estimators).
+Transformers are basically pure functions that are applied, transforming the input into an output.
+These can then be appended to each other, creating a transformation pipeline.
+
+Now I won't lie, there is a bunch of behind the scenes-stuff I haven't delved into with these, but learning what transforms are available and their APIs will take you a long way!
+
+I've prepared methods returning the correct type of the estimators you need, it's now your job to figure out how to implement them and the order we should use them in.
+
+### Task 3a
+
+Implement the 4 transformers and append them to the pipeline in the correct order.
+The following links will help figuring out the APIs.
+
+[here](https://docs.microsoft.com/en-us/dotnet/api/microsoft.ml.imageestimatorscatalog?view=ml-dotnet)
+[here](https://docs.microsoft.com/en-us/dotnet/api/microsoft.ml.onnxcatalog.applyonnxmodel?view=ml-dotnet)
+and
+[here](https://docs.microsoft.com/en-us/dotnet/api/microsoft.ml.transforms.columncopyingestimator?view=ml-dotnet)
+
+Remember that there was a name on the output from the OnnxModel?
+
+When the pipeline finishes, the last output column is expected to map to the name of a property where the output data will be stored.
+
+The method _GetMlNetPredictionEngine_ gives a hint of what will be input and output of the full pipeline.
+Use this information to figure out the name of the final output column of the pipeline.
+
+Using the same logic, remember that we annotated the property that will hold the actual image that is received.
+The first input column of the pipeline will need to be populated from that object.
+
+Be explicit in each transformer step where the input column of the step should be populated from and what to name the output column of each step.
+
+(Note that this isn't strictly necessary since names can follow through steps, but being explicit is always good)
+
+Good to know is that only the first and last transformer will need to map its input respectively its output column with regards to data source and data destination.
+The rest is up to you and internal to the pipeline.
+The only requirement within the pipeline is the Onnx Model which has the specific names given in the model itself.
+
+### Task 3b
+
+Implement the public method to get a prediction engine with the full transformer pipeline.
+
+To do this we once again need to use the MLContext object.
+It also has a Model property with some convenient methods.
+Check them out to solve this.
+
+### Task 4
+
+Now we need to do something with the output from the model to make it useful.
+You may remember from inspecting the model that the output is a tensor of shape 125x13x13 float.
+You can read [here](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny-yolov2) about what that means.
+
+Check the TODO in OnnxOutputParser.
+Now this part is pretty tedious.
+A further explanation of the output from the model can be found [in the readme from sample under src/README.md](/src/Readme.md).
+(Note that there are some potential spoilers there).
+
+For the sake of this exercise, I recommend to use the cheat available here (just extend _Cheating.OnnxOutputParserCheat_) and perhaps come back and try to implement this class yourself if you have time left or if you want to give it a try in the future.
+
+### Task 5
+
+Time to use all our models and parsers to make a prediction and generate some output from the system!
+
+Go to the _OnnxObjectDetectionWeb_ project and find the TODO in _Services/ObjectDetectionService_.
+
+Now it's just a matter of creating a transformer, getting a prediction engine from it, send in the input to get a prediction and use the parser to generate bounding boxes.
+
+A final step that is omitted here is taking the bounding boxes and drawing them on the input image.
+This step is what happens in _DrawBoundingBox_ in the same class.
+
+## Does it work?
+
+Try it out! By now you should be able to classify the preloaded images and upload your own images.
+
+Note that uploading your own images seems to mess upp the scaling a bit when it comes to labels and boxes, so you might have to zoom in on the image to see them.
 
 ## Intermission
 
