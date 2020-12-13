@@ -50,7 +50,7 @@ namespace OnnxObjectDetectionWeb.Services
 
         public IEnumerable<BoundingBox> DetectObjectsUsingModel(ImageInputData imageInputData)
         {
-            //TODO Create a transformer pipeline (Hint: there are CommonHelpers to help get a correct path to the onnx model)
+            //TODO Create a transformer pipeline (Hint: there are CommonHelpers to help get a correct path to the onnx model. Where does it reside in the build folder?)
 
             //TODO Get a prediction engine and use it
 
