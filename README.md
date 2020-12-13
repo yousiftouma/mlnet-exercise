@@ -49,7 +49,7 @@ We have a lot of stuff to do to get it up and running, and hopefully, by doing s
 
 To help out with some tedious parts that are inherited given the actual ONNX model being used in this sample, there are a bunch of helpers under the _OnnxObjectDetection.Cheating_ namespace.
 
-Actually, most TODOs can be solved using these, but the ones where I recommend using it are specifically noted as such.
+Actually, most TODOs can be solved using these, but the ones where I recommend using it are mentioned here.
 
 ### Task 1 - Data models
 
@@ -137,7 +137,7 @@ You can read [here](https://github.com/onnx/models/tree/master/vision/object_det
 
 Check the TODO in OnnxOutputParser.
 Now this part is pretty tedious.
-A further explanation of the output from the model can be found [in the readme from sample under src/README.md](/src/Readme.md).
+A further explanation of the output from the model can be found [in the readme from sample under src/README.md](/src/README.md).
 (Note that there are some potential spoilers there).
 
 For the sake of this exercise, I recommend to use the cheat available here (just extend _Cheating.OnnxOutputParserCheat_) and perhaps come back and try to implement this class yourself if you have time left or if you want to give it a try in the future.
@@ -206,3 +206,22 @@ Look [here](https://docs.microsoft.com/en-us/dotnet/machine-learning/how-to-guid
 Go back to _ObjectDetectionService_ and exchange the manually created prediction engine for a prediction engine pool that is injected in the constructor of the class.
 
 The pool has the same interface for getting predictions as the "normal" prediction engine.
+
+## Does it work even better?
+
+Now you should be set to be running classification even more efficiently!
+
+## Next steps
+
+So where can you go from here to learn more?
+
+* One step could be to make the system more flexible by using the _IOptions_ interface to inject configuration into the system.
+This way you won't need to rebuild the project to make changes to for example where the model is located, the name of the labels or whatever.
+
+* Try a different model! There are plenty of models [here](https://github.com/onnx/models/) that you can experiment with. Maybe use a model that is easier to build a simple JSON-based API with?
+Perhaps you can be successful in building a handwritten digit classification API using [this model](https://github.com/onnx/models/tree/master/vision/classification/mnist)?
+
+_This exercise was supposed to be based on that model to reduce the noise generated from using this sample with infrastructure and parsing included.
+However, I couldn't get it working (everything was classified as a 6 ^^), perhaps you can? :)_
+
+* Perhaps try to deploy it as an [Azure Functions app](https://docs.microsoft.com/en-us/dotnet/machine-learning/how-to-guides/serve-model-serverless-azure-functions-ml-net)?
