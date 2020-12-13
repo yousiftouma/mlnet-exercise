@@ -60,7 +60,7 @@ Another great thing to do when working with ONNX models is to inspect the actual
 This can be done using for example [this app](https://netron.app).
 Load the ONNX model (OnnxObjectDetection/ML/OnnxModels/TinyYolo2_model.onnx) and inspect it a bit.
 
-The parts that are important to note are the names are of the inputs and outputs, as well as the form of what is expected as input to the model and the form of the output.
+The parts that are important to note are what the names are of the inputs and outputs, as well as the form of what is expected as input to the model and the form of the output.
 
 ### Task 2 - your first TODOs
 
@@ -79,6 +79,8 @@ Okay, so we got the models ready to go, time to define a pipeline that takes an 
 Go to OnnxObjectDetection/ML/OnnxModelConfigurator.
 
 From task 1, we got the information with us that the ONNX model expected input on the form 3x416x416 of floats.
+
+(Think about what those numbers represent in relation to an image)
 
 This means we somehow need to make sure the image is of the correct size, as well as transformed to a 3d array of floats before being fed to the actual model.
 
@@ -108,6 +110,17 @@ When the pipeline finishes, the last output column is expected to map to the nam
 The method _GetMlNetPredictionEngine_ gives a hint of what will be input and output of the full pipeline.
 Use this information to figure out the name of the final output column of the pipeline.
 
+Using the same logic, remember that we annotated the property that will hold the actual image that is received.
+The first input column of the pipeline will need to be populated from that object.
+
+Be explicit in each transformer step where the input column of the step should be populated from and what to name the output column of each step.
+
+(Note that this isn't strictly necessary since names can follow through steps, but being explicit is always good)
+
+Good to know is that only the first and last transformer will need to map its input respectively its output column with regards to data source and data destination.
+The rest is up to you and internal to the pipeline.
+The only requirement within the pipeline is the Onnx Model which has the specific names given in the model itself.
+
 ### Task 3b
 
 Implement the public method to get a prediction engine with the full transformer pipeline.
@@ -115,6 +128,30 @@ Implement the public method to get a prediction engine with the full transformer
 To do this we once again need to use the MLContext object.
 It also has a Model property with some convenient methods.
 Check them out to solve this.
+
+### Task 4
+
+Now we need to do something with the output from the model to make it useful.
+You may remember from inspecting the model that the output is a tensor of shape 125x13x13 float.
+You can read [here](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny-yolov2) about what that means.
+
+Check the TODO in OnnxOutputParser.
+Now this part is pretty tedious.
+A further explanation of the output from the model can be found [in the readme from sample under src/README.md](/src/Readme.md).
+(Note that there are some potential spoilers there).
+
+For the sake of this exercise, I recommend to use the cheat available here (just extend _Cheating.OnnxOutputParserCheat_) and perhaps come back and try to implement this class yourself if you have time left or if you want to give it a try in the future.
+
+### Task 5
+
+Time to use all our models and parsers to make a prediction and generate some output from the system!
+
+Go to the _OnnxObjectDetectionWeb_ project and find the TODO in _Services/ObjectDetectionService_.
+
+Now it's just a matter of creating a transformer, getting a prediction engine from it, send in the input to get a prediction and use the parser to generate bounding boxes.
+
+A final step that is omitted here is taking the bounding boxes and drawing them on the input image.
+This step is what happens in _DrawBoundingBox_ in the same class.
 
 ## Does it work?
 
