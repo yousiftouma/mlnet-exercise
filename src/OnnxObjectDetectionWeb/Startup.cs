@@ -10,7 +10,7 @@ using OnnxObjectDetection;
 using OnnxObjectDetection.ML;
 using OnnxObjectDetection.ML.DataModels;
 using OnnxObjectDetectionWeb.ImageFileHelpers;
-using OnnxObjectDetectionWeb.Utilitites;
+using OnnxObjectDetectionWeb.Utilities;
 
 namespace OnnxObjectDetectionWeb
 {
@@ -19,8 +19,6 @@ namespace OnnxObjectDetectionWeb
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-
-            //TODO create an ML.NET pipeline model and save the model as a zip 
         }
 
         public IConfiguration Configuration { get; }
@@ -37,8 +35,6 @@ namespace OnnxObjectDetectionWeb
 
             services.AddControllers();
             services.AddRazorPages();
-
-            //TODO load your model from the zip you saved and register a PredictionEnginePool in DI
 
             services.AddTransient<IImageFileWriter, ImageFileWriter>();
             services.AddTransient<IObjectDetectionService, ObjectDetectionService>();

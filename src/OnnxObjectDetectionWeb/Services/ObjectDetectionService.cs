@@ -4,47 +4,71 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using OnnxObjectDetection;
+using OnnxObjectDetection.Cheating;
 using OnnxObjectDetection.ML;
 using OnnxObjectDetection.ML.DataModels;
-using OnnxObjectDetectionWeb.Utilitites;
+using OnnxObjectDetectionWeb.Utilities;
 
 namespace OnnxObjectDetectionWeb.Services
 {
     public interface IObjectDetectionService
     {
-        void DetectObjectsUsingModel(ImageInputData imageInputData);
-        Image DrawBoundingBox(string imageFilePath);
+        /// <summary>
+        /// Detect objects in an image, returning bounding boxes of the most probable objects.
+        /// </summary>
+        /// <param name="imageInputData">
+        /// The input image object.
+        /// </param>
+        /// <returns>
+        /// A list of bounding boxes with the most probable objects.
+        /// </returns>
+        IEnumerable<BoundingBox> DetectObjectsUsingModel(ImageInputData imageInputData);
+        /// <summary>
+        /// Draws bounding boxes on image.
+        /// </summary>
+        /// <param name="imageFilePath">
+        /// Path to image to draw on.
+        /// </param>
+        /// <param name="boundingBoxes">
+        /// The boxes to draw.
+        /// </param>
+        /// <returns>
+        /// The image, now with bounding boxes on it.
+        /// </returns>
+        Image DrawBoundingBox(string imageFilePath, IEnumerable<BoundingBox> boundingBoxes);
     }
 
     public class ObjectDetectionService : IObjectDetectionService
     {
-        List<BoundingBox> _filteredBoxes;
-        private readonly OnnxOutputParser _outputParser = new OnnxOutputParser(new TinyYoloModel(null));
+        private readonly IOnnxOutputParser _outputParser;
 
         public ObjectDetectionService()
         {
-            //TODO Get a PredictionEnginePool using DI and store it as a field in the class
+            // we create an output parser using the definition of the onnx model, so no need to include a path to an actual onnx model.
+            _outputParser = new OnnxOutputParser(new TinyYoloModel(null));
         }
 
-        public void DetectObjectsUsingModel(ImageInputData imageInputData)
+        public IEnumerable<BoundingBox> DetectObjectsUsingModel(ImageInputData imageInputData)
         {
-            //TODO use the PredictionEnginePool instead of creating a new predictor
+            //TODO Create a transformer pipeline (Hint: there are CommonHelpers to help get a correct path to the onnx model)
 
-            var transformer = new OnnxModelConfigurator(new TinyYoloModel(CommonHelpers.GetAbsolutePath("ML/OnnxModels/TinyYolo2_model.onnx")));
-            var predictor = transformer.GetMlNetPredictionEngine<TinyYoloPrediction>();
+            //TODO Get a prediction engine and use it
 
-            var probabilities = predictor.Predict(imageInputData).PredictedLabels;
+            //TODO Parse output from the model using the output parser and generate a list of bounding boxes
 
-            var boundingBoxes = _outputParser.ParseOutputs(probabilities);
-            _filteredBoxes = OnnxOutputParser.FilterBoundingBoxes(boundingBoxes, 5, .5F);
+            //TODO filter the bounding boxes with some limit and threshold for inclusion
+
+            // NOTE: you can use cheat for this whole method (Cheating.DetectObjectsUsingModel)
+
+            throw new NotImplementedException();
         }
 
-        public Image DrawBoundingBox(string imageFilePath)
+        public Image DrawBoundingBox(string imageFilePath, IEnumerable<BoundingBox> boundingBoxes)
         {
             var image = Image.FromFile(imageFilePath);
             var originalHeight = image.Height;
             var originalWidth = image.Width;
-            foreach (var box in _filteredBoxes)
+            foreach (var box in boundingBoxes)
             {
                 // process output boxes
                 var x = (uint)Math.Max(box.Dimensions.X, 0);
